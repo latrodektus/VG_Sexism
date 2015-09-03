@@ -112,3 +112,30 @@ anova(modelAGGPos.nbmv, nBoot=1000)
 plot(modelAGGPos.poismv)
 plot(modelAGGPos1.nbmv)
 plot(modelAGGPos2.nbmv)
+
+##Positive Comments
+# Bayesian estimation (using MCMC)
+
+# MCMCglmm fits an "over-dispersed" Poisson, which includes an 
+# additional, per-observation random-effect.  
+modelAGGPos.mcmc <- MCMCglmm(Positive ~ GameOutcome + Treatment + stdKills + stdDeaths + stdSkill + Treatment*stdKills + Treatment*stdDeaths + Treatment*stdSkill, 
+                             family="poisson", data=data, nitt=100000, burnin=10000, thin=10)
+summary(modelAGGPos.mcmc)
+HPDinterval(modelAGGPos.mcmc$Sol, prob=0.9)
+# plot the posteriors, with marginal densities
+plot(modelAGGPos.mcmc)
+
+##Negative Comments
+
+##Removing the two outliers
+modelAGGNeg<-glm(Negative ~ GameOutcome + Treatment + Kills + Deaths + MaxSkillLevel+ Treatment*Kills + Treatment*Deaths + Treatment*MaxSkillLevel, (family = poisson(link="log")), data=dataNoOutliers)
+anova(modelAGGNeg, test="Chisq")
+
+# Bayesian estimation - mcmc
+modelAGGNeg.mcmc<-MCMCglmm(fixed=Negative ~ GameOutcome + Treatment + stdKills + stdDeaths + stdSkill+ Treatment*stdKills + Treatment*stdDeaths + Treatment*stdSkill, random=NULL,
+                           family="poisson", data=dataNoOutliers, nitt=100000, burnin=10000, thin=10)
+summary(modelAGGNeg.mcmc)
+HPDinterval(modelAGGNeg.mcmc$Sol, prob=0.9)
+# plot the posteriors, with marginal densities
+plot(modelAGGNeg.mcmc)
+
